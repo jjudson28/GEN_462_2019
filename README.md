@@ -3,7 +3,7 @@ Repository for GEN462: Evolutionary Genetics
 
 ##Contents of this repository (Current and Future):  
 
-1. Introductory Material
+1. Introductory Material  
   a. August27  
   b. September3  
 2. Computational Activity 1  
