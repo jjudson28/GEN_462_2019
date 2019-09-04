@@ -1,0 +1,143 @@
+---
+title: "Different Markers and HWE Analysis"
+output: html_notebook
+---
+
+#Different Types of Data and How to View in R
+###Preparation:
+1. Navigate to the folder "Example Data" in your GitHub Repository and set as your working directory (go to top of RStudio, click Session, Set Working Directory, Choose Directory, then choose your repository (GEN_462_2019), Computational1, InClass)
+
+2. Set viewing to decimal rather than exponential (useful for p-values). To execute this, press the green play button to the right
+```{r}
+options("scipen" = 10)
+```
+3. Install required packages, adegenet and pegas, and load to your library. You shouldn't need to install them if you did last class, but you DO need to load them into your library.
+```{r}
+install.packages("adegenet")
+#once you have installed a package, you have it forever! You don't need to install it again. To load it for use in each new session, load it using the library command below.
+install.packages("pegas")
+#install.packages("ade4") #ade4 and ape are required packages and may load automatically when installing adegenet and pegas
+#install.packages("ape")
+library(adegenet)
+library(pegas)
+```
+
+##Viewing our different data types
+**1. Sequence data (ex: mitochondrial sequence)**
+Sequence data is often represented as fasta files, which have the filetype .fasta and contain information on the sequence as well as the nucleotide bases. Since this is not a text file that R can read, we will use the packages we downloaded to read the data into R. To look at the data first, you can open the .fasta file in any text editor on your computer.
+```{r}
+mitoseq <- fasta2DNAbin("mitoseq.fasta", quiet=FALSE, chunkSize=10, snpOnly=FALSE)
+#this command imports the fasta sequence into an object that adegenet (our package) can read. The new object is now called "mitoseq", and can be seen to the right. The filename you want to convert is "mitoseq.fasta" and must always be in quotation marks. 
+mitoseq #to view a file, just type its name and press play
+
+
+#What does the console tell you about these sequences?
+```
+Data from: Martin et al., Phylogeography of the Endangered Lesser Antillean Iguana (2015)
+
+
+**2. SNP data (ex: single nucleotide polymorphisms from sequencing)**
+SNP data is often represented as txt files with either numeric code for the bases, ex: a=1, c=2, g=3, t=4, or as the nucleotide letters.
+```{r}
+#open a file with SNP data and look at what appears
+read.table("SNPgenotypes.txt", header = TRUE, sep = "\t")
+```
+
+That's a really large file! let's assign that data to a variable called SNPs:
+```{r}
+SNPs <- read.table("SNPgenotypes.txt", header = TRUE, sep = "\t")
+#you should see the file show up to the right in your environment. If you click on it, it will open a tab above.
+```
+Data from: Hufford Lab here at ISU, Teosinte populations
+
+How can we figure out how many samples there are? How many loci?
+```{r}
+nrow(SNPs) #number of rows in the dataset
+ncol(SNPs) #number of columns
+#*hint, not all of the counted columns are loci*
+```
+
+**3. Microsatellite data**
+This data is often represented as txt files with either numbers for the length of the microsatellite copies, or homozygous/heterozygous coding, or as the copy number of the repeated sequence
+```{r}
+#open a dataset with microsatellite data from the adegenet package
+##Important, this only works for data from this package! If you are trying to load a file from your computer (like you will for the homework), use the read.table command like we did for SNP data.
+data(nancycats) #load the data
+nancycats #look at the object for a summary
+raw_nancycats <- genind2df(nancycats) #to see the original raw allelic data for the microsatellites, which will just be in table format
+raw_nancycats
+```
+**What do the data look like? Can you see what missing data is coded as? How many populations are there? What do the numbers represent?**
+
+#Analyzing Different Types of Genetic Data
+###Now that we know what the data will look like, how do we find out important statistics that will inform our understanding of the actual organism we are studying?
+
+**1. Mitochondrial sequence**
+
+```{r}
+mitoseq #remind yourself what the data looks like
+```
+What might we want to know about different haplotypes represented in this data? Could we test if they are all the same or if they are different? What would that mean about the organisms we are looking at?
+```{r}
+h <- haplotype(mitoseq) #pull out haplotypes from alignment, so that you can call each haplotype individually
+diffHaplo(h, 1, 2) #compares haplotypes 1 and 2
+#Try comparing different combinations of sequences. What did you learn about these sequences?
+```
+These are haplotypes, and for the programs we are using for HWE, we need to use diploid data (2 alleles per locus). Let's look at some data we can use to calculate allele frequencies and test HWE.
+
+**2. SNP data**
+Formatting our data for the Package:
+```{r}
+head(SNPs) #shows the first few rows to remind yourself what the data looks like
+
+ind <- as.character(SNPs$Sample_ID) #assign labels of the individuals to an object. The part in parentheses refers to the name of the dataset (we called it SNPs earlier, see number 2 of the data types part above) and then the $ says we want a specific column, and then we give the name of the column (in this case, it is called Sample_ID)
+population <- as.character(SNPs$Group) #assign labels of the populations to an object
+
+SNP_New <- SNPs[, -c(1, 2, 3)] #remove the first three columns that don't have locus data (the program expects only the genetic data) and create a new object, the minus before the c tells R to "exclude", and the c() part tells R you are listing numbers. The comma is also important. It tells R that before the comma, you are specifying rows, and since we did not specify, it tells R we want ALL rows, and the part after the comma tells R what columns you want (in our case, we want to exclude columns 1, 2, and 3).
+colnames(SNP_New) <- gsub("\\.", "_", colnames(SNP_New)) #renames the column names; locus names can't have "." in this program, so we sub the . with a _ character
+
+FinalSNPData <- df2genind(SNP_New, ploidy = 2, ind.names = ind, pop = population, sep = "/", NA.char = "?") #df2genind makes our data into an object that can be used with our packages. The parts of the command are explained in the df2genind help page (run ?df2genind). Briefly, the dataset comes first (SNP_New), then we tell it the ploidy of our data (diploid or haploid?), then we tell it where we put the individual and population information, and finally our separator between alleles and our character for unknown data. Another important option you can use is ncode, which if you have microsatellites, can tell the program how many digits represent one allele (ex: if you had a microsatellite coded as 132136, ncode = 3)
+```
+Running Statistics and HWE
+```{r}
+FinalSNPData #lets get a report on our genind object
+summary(FinalSNPData) #get information on observed vs. expected heterozygosity
+hw.test(FinalSNPData, B = 0) #This tests whether loci are in HWE.
+```
+What do you think the results mean?
+
+*Note*: "in HWE" means that the loci are in Hardy-Weinberg Equilibrium, and their p-values should be greater than the significance threshold.
+
+Question: is the test we just ran for HWE with this data informative? How might we get values that are not deviating from HWE?
+
+**3. Microsatellite data**
+```{r}
+nancycats #microsatellite dataset
+summary(nancycats) #what information do you get from this command?
+#compare the observed and expected heterozygosity by eye. Do they look different? How would we test if they are different?
+```
+
+Let's test HWE!
+```{r}
+hw.test(nancycats, B=0)
+```
+What are the results? Why do you think these are the results? What do you think will happen if we analyze just one population of cats?
+
+Let's try it!
+```{r}
+pop_1_cats <- raw_nancycats[raw_nancycats$pop=="P01",] #pull out the data for the cats from population 1 (remember, before the comma we are asking for a specific row(s) and after the comma we ask for columns). If you wanted to ask for data on population 2, how would you change the above code?
+pop_1_cats <- df2genind(pop_1_cats, ploidy = 2, ncode=3, NA.char = "NA") #convert to an object that can be used by adegenet and pegas, for a reminder on what df2genind does, see the SNP section above
+pop_1_cats #does everything look like it should? if so, can test HWE
+hw.test(pop_1_cats,B=0)
+```
+How are the results from one population different than results across all populations? What can you learn from this?
+
+##Your assignment can be found in the Assignment_1 folder of Computational_1. This assignment is due by **5pm on Thursday, September 12th** (one week from today) and is worth 25 points. See the instructions in the assignment folder for more information.
+
+Your assignment is already in R Notebook format for ease of completing your homework. 
+
+
+RESOURCES FOR HELP:
+1. The internet: Stack Overflow https://stackoverflow.com/
+2. Your classmates: Slack direct messaging or Canvas messaging. You may work with a classmate to figure out coding challenges, but YOU MUST SUBMIT THE ASSIGNMENT IN YOUR OWN WORDS.
+3. Me: Slack direct messaging or set up a meeting via Slack or email. I am happy to help you with any problems you have!
