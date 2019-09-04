@@ -1,0 +1,125 @@
+---
+title: "Assignment_1"
+output: html_notebook
+---
+
+Answer the questions in this R Notebook file and send the .Rmd file in a direct message to me via Slack by Thursday, September 12 at 5pm. Save the assignment as your full name, last and first, before you send it to me (example file name: "JudsonJessica.Rmd"). Show all of your code you used to answer the questions (I have inserted grey code boxes to indicate where you should have code associated with the question) and make sure you provide the answer where I have indicated below the question. Make sure you either do not change the format of the assignment, or if you do, number your answers Part 1 or 2 and the corresponding number of the question.
+
+Set Up:
+```{r}
+#run this chunk first
+options("scipen" = 10) #converts to decimal format for viewing p-values
+library(adegenet) #remember, this loads the package so you can use it in your current session of R
+library(pegas)
+```
+
+
+##Part 1. Read the scenario below. Answer the question with a paragraph: explain and justify your answer. (5 points)
+A student at ISU has decided that they want to investigate the fine-scale neutral population genetic structure of a species of frog in the Amazon rainforest. They want to know whether the populations of this frog are divided by the Amazon River, or if the frog has been able to cross the Amazon frequently in recent time. Another known fact about the species is that it is young and only recently spread to its current range. 
+###What kind of genetic marker do you think the student should use, and why? Review your notes about different marker types from lecture 2 and from the computational lab powerpoint and their benefits before answering.
+
+##Answer Here:
+
+
+
+##Part 2. In the Assignment_1 folder in your repository, there is a data file called `Dataset`. Open the file in R Studio. For a reminder on how to do this, review the Basics_of_R.Rmd file Part 3. Using what you learned in class and the computational exercise, answer the following questions:
+
+1. What kind of marker does this dataset represent? (1 point)
+*Tip*: See our in-class exercise, "Viewing our different data types" section. Compare this new dataset with the three types we looked at in class. Use the code box below to view the dataset and load it into R. Which one does it look like?
+```{r}
+
+```
+##Answer Here:
+
+
+2. How many loci are in the dataset? (1 point)
+*Tip*: Depending on what type of marker you answered for part one, look at the code we used for that marker type in the in-class computational exercise. What code was used to get information about the dataset?
+```{r}
+
+```
+##Answer Here:
+
+
+3. How many individuals were genotyped? (1 point)
+```{r}
+
+```
+##Answer Here:
+
+
+4. How much data is missing in the dataset (in percentage)? (1 point)
+```{r}
+
+```
+##Answer Here:
+
+
+5. If the threshold of significance is 0.05, which loci are in HWE? (3 points)
+*Tip*: For p-values, if the threshold of significance is 0.05, then anything less than 0.05 is considered significant.
+```{r}
+
+```
+##Answer Here:
+
+
+6. How many populations are represented in the dataset? (1 point)
+```{r}
+
+```
+##Answer Here:
+
+
+7. How many samples belong to each population? (3 points)
+```{r}
+
+```
+##Answer Here:
+
+
+**Subset out the first locus in the dataset**  
+```{r}
+#Tip: if you have a genind object, can subset out loci by assigning a specific locus (ex: loc=2 for the second locus) of your genind_object to a new object that you can use for these questions (see code below and change to fit your question and task of subsetting locus 1). See the Basics_of_R.Rmd for the format of assigning variables to objects in your environment (the environment is the box to the upper right in R Studio). 
+genind_object[loc=2] #you must change this to fit your data and your desired locus!
+```
+
+8. How much data is missing for the first locus, in percentage? (1 point)  
+```{r}
+
+```
+##Answer Here:
+
+
+9. How many alleles does this first locus have? (1 point)
+```{r}
+
+```
+##Answer Here:
+
+
+**Subset out the population "Morro do Diabo" in the dataset**
+```{r}
+genind_object[pop="Name_of_pop"] #change to fit your data and desired population!
+```
+
+10. How many alleles does this population (called a group!) have at the first locus? (1 point)  
+```{r}
+
+```
+##Answer Here:
+
+
+11. Which loci deviate from HWE (are NOT in HWE, significance threshold 0.05)? (3 points) 
+```{r}
+
+```
+##Answer Here:
+
+
+12. Interpret your answer from 11. What does your result tell you about what this population is experiencing? Think about what it means when something deviates from HWE and the assumptions of HWE. (3 points)  
+##Answer Here:
+
+
+###Tips: 
+1. Make sure you set your working directory, and transform any datasets into a format that the packages can read using `df2genind`. For any tests of HWE, use the option `B=0` for a regular HWE test.
+2. If you are struggling, first use your notes and the code from class. You will find all of the base code you need in our in-class exercise; your task is to modify it to fit the new dataset and your question. Second, search for your question online. Third, check with a partner from class and see if they figured it out. Finally, if you really can't figure it out, message me on Slack. I find that most of the learning of code comes from trying to adapt it to different situations, rather than just running code given to you. That said, I am happy to help, and I am more than willing to walk you through the entire assignment if it helps you to learn. 
+3. I don't mind if you work with others, but your answers and your code must be your own.
