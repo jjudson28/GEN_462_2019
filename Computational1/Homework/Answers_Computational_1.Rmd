@@ -1,0 +1,195 @@
+---
+title: "Answers to Computational Activity #1"
+output: html_notebook
+---
+
+#Part 1. 
+The best marker types would be SNPs or microsatellites, given that the species is young and contemporary divergence is of interest (need a faster mutation rate or more data to see differences between populations). As long as the student justifies their answer, either is acceptable. The point of this question is to get students thinking like researchers: what type of data could I use to answer this question?
+**Worth 5 Points**
+
+#Part 2.
+1. What kind of marker does the dataset represent?  
+The data is a microsatellite dataset. This is because the alleles are coded as lengths. 
+**Worth 1 Point: microsatellite: 0.5pt, code to read in dataset: 0.5pt**
+Code:
+```{r}
+#set your working directory
+name_of_dataset <- read.table("Dataset", header = TRUE, sep = "\t") #this code reads in the file and creates a variable containing the Dataset file called "name_of_dataset"; the file has a header and is tab-separated; once run, the variable name_of_dataset should show up in the global environment of R Studio
+
+#other option
+#name_of_dataset <- read.table("Dataset", header = TRUE, sep = "\t", row.names=NULL)
+```
+
+2. How many loci are in the dataset? 
+
+There are 13 loci (*will accept 14 since the genind object gives 14)
+**Worth 1 Point: 13/14: 0.5pt, code to count loci: 0.5pt**
+Code:
+```{r}
+(ncol(name_of_dataset))-1 #get the number of columns for the dataset, need to subtract one for the population column
+ncol(name_of_dataset) #if they did this, also fine since this was in-class code
+
+##OR##
+
+##Convert to the genind object##
+#First, specify the population column of the dataset
+population <- as.character(name_of_dataset$population) #assign a variable that contains all of the population data from the name_of_dataset dataset in the column population
+
+#Next, need to remove the column with population, so that the package doesn't include it as a locus
+new_name_of_dataset <- as.data.frame(name_of_dataset[,c(1:13)]) #creates a dataframe called new_name_of_dataset from the original dataframe containing columns 1-13
+new_name_of_dataset <- as.data.frame(name_of_dataset[,-c(14)]) #does the same thing as above, removing column 14
+
+genind_object <- df2genind(new_name_of_dataset, ploidy = 2, NA.char = "0", sep = "/", pop = population) #convert dataframe (name_of_dataset) into a genind object using ploidy = diploid, the character for missing data = 0, the separator between alleles is /, and the population column is the population variable we created earlier
+genind_object #if you look at the genind object, you can figure out the number of loci in the dataset; notice that it says 13 loci, it assumes all columns are loci
+```
+
+
+3. How many individuals were genotyped? 
+
+59 individuals
+**Worth 1 Point: 59: 0.5pt, code to count individuals: 0.5pt**
+Code:
+```{r}
+nrow(name_of_dataset) #get the number of rows in the dataset
+
+##OR##
+
+population <- as.character(name_of_dataset$population) #assign a variable that contains all of the population data from the name_of_dataset dataset in the column population (this can be done later)
+
+genind_object2 <- df2genind(name_of_dataset, ploidy = 2, NA.char = "0", sep = "/", pop = population) #convert dataframe (name_of_dataset) into a genind object using ploidy = diploid, the character for missing data = 0, the separator between alleles is /, and the population column is the population variable we created earlier
+genind_object2 #if you look at the genind object, you can figure out the number of individuals in the dataset
+```
+
+
+4. How much data is missing in the dataset (in percentage)? 
+
+1.82% **OR** 1.96%
+**Worth 1 Point: 1.82/1.96% : 0.5pt, code to calculate missing data: 0.5pt**
+Code:
+```{r}
+##I will count either solution (with or without the population column) to be correct##
+
+summary(genind_object) #summary statistics about the genind object, including % missing data; this object excludes the population column
+summary(genind_object2) #this object includes the population column
+```
+
+
+5. If the threshold of significance is 0.05, which loci are in HWE? 
+
+FCA740, FCA391, F53, F124, F146, FCA453, FCA741
+**Worth 3 Points: if all 7 listed, 2pts; if some missing, 1pt; if wrong loci are given, 0pts , code to test HWE: 1pt**
+Code:
+```{r}
+hw.test(genind_object, B=0)
+```
+
+
+6. How many populations are represented in the dataset? 
+
+4
+**Worth 1 Point: 4: 0.5pt, code to get population number: 0.5pt**
+Code:
+```{r}
+summary(genind_object) #gives you group sizes for the four populations
+
+##OR##
+
+unique(name_of_dataset$population) #shows unique values in the population column, gives you the four population names
+
+##OR##
+
+table(name_of_dataset$population)
+
+```
+
+
+7. How many samples belong to each population? 
+
+18, 10, 8, 23
+**Worth 3 Points: if all answered correctly, 2pt; if some missing, 1pt; if  incorrect, 0pt; code to calculate sample size: 1pt**
+Code:
+```{r}
+summary(genind_object) #gives group (sample) sizes for each population
+
+##OR##
+
+table(name_of_dataset$population)
+```
+
+
+**Subset out the first locus in the dataset**  
+
+8. How much data is missing for the first locus, in percentage? 
+
+1.69% (*will accept 0% since the package adegenet will remove missing data individuals from dataset using the first code method)
+**Worth 1 Point: 1.69/0%: 0.5pt, code to calculate missing data: 0.5pt**  
+Code:
+```{r}
+locus1 <- as.data.frame(name_of_dataset$FCA742) #code to subset locus 1 into a variable
+genind_locus1 <- df2genind(locus1, ploidy = 2, NA.char = "0", sep = "/", pop=population) #turn that dataframe into a genind object; this method will remove individuals that have no genotype data at this locus.
+summary(genind_locus1)
+
+##OR##
+
+summary(genind_object[loc=1]) #index genind object to figure out missing data for first locus
+```
+
+
+9. How many alleles does this first locus have? 
+
+16 alleles
+**Worth 1 Point: 16: 0.5pt, code: 0.5pt**
+Code:
+```{r}
+summary(genind_locus1) #see code above for creating the genind_locus1
+
+##OR##
+
+summary(genind_object[loc=1])
+```
+
+**Subset out the population "Morro do Diabo" in the dataset**  
+
+10. How many alleles does this population have at the first locus? 
+
+4
+**Worth 1 Point: 4: 0.5pt, code: 0.5pt** (Will accept 16 since students did not notice the alleles per group column, and the summary command shows 16 regardless of subsetting) 
+Code:
+```{r}
+popMorro <- name_of_dataset[name_of_dataset$population=="Morro do Diabo",] #code to subset population Morro do Diabo into a variable
+popMorro_genind <- df2genind(popMorro, ploidy = 2, NA.char = "0", sep = "/") #turn that dataframe into a genind object; this method will remove individuals that have no genotype data at this locus.
+summary(popMorro_genind)
+
+##OR##
+popgenind <- genind_object[pop="Morro do Diabo"] #create a new genind object with just the population of interest
+summary(popgenind[loc=1]) #want just the first locus, the number of alleles per group is 4
+
+##OR##
+
+summary(genind_object[pop="Morro do Diabo", loc=1]) #the number of alleles per group is 4
+```
+
+
+11. Which loci deviate from HWE (significance threshold 0.05)? 
+
+No loci deviate, 0
+**Worth 3 Points: 0, 2pt; code to test HWE: 1 pt** 
+Code:
+```{r}
+hw.test(genind_object[pop="Morro do Diabo"], B=0) #use the full genind object and index the pop. of interest
+
+##OR##
+
+hw.test(popgenind, B=0) #using the genind object you created from just that one population in the dataset
+```
+
+
+12. Interpret your answer from 11. What does your result tell you about what this population is experiencing? Think about what it means when something deviates from HWE. 
+
+Student should explain that since no loci deviate from HWE, this population is in HWE at the loci of interest (meaning the population is NOT undergoing drift, selection, migration, mutation, and there is random mating). They should mention the assumptions of HWE: no natural selection, no genetic drift, random mating, no gene flow/migration, no mutation, large population sizes. 
+**Worth 3 Points: if correct AND mention at least three assumptions of HWE: 3pts, if only 2, give 2 points, if 1 give 1 pt.**
+
+**If student incorrectly answers that all loci deviate from HWE in question 11, but correctly interprets their incorrect finding by stating that population is experiencing mutation, drift, ect, then they can earn points for 12, they just lose points for 11**
+
+
+
