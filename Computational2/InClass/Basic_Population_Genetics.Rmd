@@ -1,0 +1,112 @@
+---
+title: "Basic Population Genetics"
+output: html_notebook
+---
+
+#Analyzing Population Genetic Structure: F-statistics
+
+###We will use a package called hierfstat to analyze F-statistics
+```{r}
+install.packages("hierfstat")
+library(hierfstat) #load our new package
+library(adegenet) #load adegenet again for this exercise
+```
+
+####Let's load some data!
+```{r}
+data(nancycats) #load the dataset included in the adegenet package from last week; remember, if you are provided a dataset from a file, you need to use the read.table command to read in the file!
+nancycats #view the data
+```
+
+####Converting our genind object to a hierfstat object
+```{r}
+fstnancycats <- genind2hierfstat(nancycats) #convert a genind object (used by adegenet and pegas like last week) to hierfstat object, which is a format of our data that the hierfstat package can use
+fstnancycats #get information on our new hierfstat object
+```
+
+####Let's learn a bit about the individuals, loci, and alleles in the hierfstat dataset we just created (called fstnancycats):
+```{r}
+ind.count(fstnancycats) #number of individuals sampled per population and per locus (population is represented by the rows, and the columns of the table are the loci)
+```
+```{r}
+allele.count(fstnancycats) #Counts the number of copies of the different alleles at each locus and population (populations are the columns in this, loci are shown by the $locusname (ex:$fca8), and the alleles for the locus are listed by row)
+```
+```{r}
+allelic.richness(fstnancycats) #calculates average number of alleles per locus for each population in the dataset (populations are columns, loci are rows)
+```
+```{r}
+nb.alleles(fstnancycats) #number of different alleles for each population (loci are the rows, populations are the columns)
+```
+
+If we want to know whether this dataset is best described as one large population, a few populations, or the 17 "populations" sampled in this dataset, we can test F-statistics.
+```{r}
+Fstats <- basic.stats(fstnancycats) #creates an object, called Fstats, that contains the F-statistics with Nei's method (1987)
+Fstats #see the powerpoint from class for important values and interpretations
+```
+
+There are other estimators of Fst that account for various data changes, ex: Weir and Cockerham's estimates of Fst and Fis account for the problem of different sample sizes from each population
+```{r}
+wc(fstnancycats) #Weir and Cockerham's estimates of Fst and Fis
+```
+
+What if you wanted to compare Fst values for each population against each other population? You might want to do this if you want to find populations that may be more highly differentiated from others. THIS NEEDS A GENIND OBJECT (adegenet)!
+```{r}
+pairwise <- pairwise.fst(nancycats, res.type = "matrix") #make a matrix comparing every population with every other population, this requires a GENIND  OBJECT!
+pairwise
+```
+
+#Analyzing Population Genetic Structure: Visualizations of Clustering
+
+###Clustering the Data with Adegenet: Switching back to using a genind object!
+What groupings exist? Do certain individuals share more similar allele frequencies than other individuals? We will use Adegenet to determine groupings (populations) using a method that maximizes variation between groups based on allele frequencies. See http://adegenet.r-forge.r-project.org/files/tutorial-dapc.pdf for more information.
+```{r}
+data(microbov) #Load the dataset from adegenet
+rawmicrobov <- genind2df(microbov) #let's look at the raw dataset by converting the genind object back into a dataframe (table)
+rawmicrobov #look at the dataset
+?microbov #look at the help page on the dataset for more information
+microbov #Learn a bit about the dataset
+summary(microbov) #some summary statistics about the loci
+```
+
+####Discriminate Analysis of Principal Components (DAPC): These groupings are based on the "largest between-group variance and the smallest within-group variance" with respect to allele frequencies (see above website link for more details). Again, **it is important to take away that these groupings of samples are based on similar allele frequencies**. But let's not get too bogged down in the math; let's run a DAPC!
+```{r}
+setPop(microbov) <- ~Breed/Species #changes the population of the genind object 
+bov_dapc <- dapc(microbov, n.pca = 100, n.da = 4) #runs the dapc with 100 principal components; 4 discriminant functions.
+scatter(bov_dapc) #plot the scatterplot of results with the "scatter" command
+```
+What does this plot indicate? Do you notice any groupings in the data? Discuss with your neighbor what this graph is telling you.
+
+####Now let's take a look at a STRUCTURE plot. See the final slide of the powerpoint presentation.
+
+#Plotting with R
+R is great for plotting, and plots we make with adegenet and hierfstat are customizable just like plots in the base R packages (the ones that come with R the moment you download it). Let's plot some data of interest with the microbov and nancycats datasets.
+
+```{r}
+basic.stats(nancycats)
+boxplot(basic.stats(nancycats)$perloc[,c(7,9)]) #the boxplot command creates a basic boxplot with the values generated from the basic.stats command that calculates F-statistics. Specifically this plots columns 7 and 9, which are Fst and Fis values across the loci, respectively. See the basic.stats output above, it takes just the per locus output instead of the overall output, and just takes columns 7 and 9.
+```
+This plot is informative. It gives you median values and the distributions of values for Fst and Fis. But this plot is pretty boring; let's customize it!
+
+```{r}
+boxplot(basic.stats(nancycats)$perloc[,c(7,9)],
+        main = "Nancycats Fst and Fis Values", #adding a title
+        ylab = "Value", #adding a y axis label (for x axis labels use `xlab`)
+        col = "cyan2") #add the same color, the color cyan2, to both boxes
+```
+
+What if we wanted the boxes to be different colors?
+```{r}
+boxplot(basic.stats(nancycats)$perloc[,c(7,9)],
+        main = "Nancycats Fst and Fis Values", #adding a title
+        ylab = "Value", #adding a y axis label (x axis labels use `xlab`)
+        col = c("cyan2","mistyrose")) #add a different color to each box; to add even more colors if you have more than two boxes, just list them in quotations separated by commas
+```
+Want all of the colors?
+Refer to this website for the names of all the colors of R:
+http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf
+
+Your **HOMEWORK** can be found in the Computational_2 folder in Assignment_2. It will be due at 5pm on Thursday, September 26th. As before, please do not wait until the last minute to attempt your homework or ask for help! 
+
+
+Resources:
+http://popgen.nescent.org/DifferentiationSNP.html
