@@ -1,0 +1,108 @@
+---
+title: "Assignment_2"
+output: html_notebook
+---
+
+Answer the questions in this R Notebook file and send the .Rmd file in a direct message to me via Slack by Thursday, September 26th at 5pm. Save the assignment as your full name, last and first, before you send it to me (example file name: "JudsonJessica.Rmd"). Show all of your code you used to answer the questions (I have inserted grey code boxes to indicate where you should have code associated with the question) and make sure you provide the answer where I have indicated below the question. Make sure you either do not change the format of the assignment, or if you do, number your answers.
+
+##Part 1. Open the structure plot in your Assignment 2 folder (called STRUCTURE.png) Just double-click the picture in your folder, you don't need to open it in R. Sample locations for each individual are below the structure plot. Answer the following question with a paragraph: explain and justify your answer. (5 points)
+1. How many groups do you think exist in the data? Why? Are these groupings consistent with the sampling locations? Why or why not?
+
+##Answer Here:
+
+
+
+
+
+##Part 2. In the Assignment_2 folder in your repository, there is a data file called "Dataset2.txt". Read the file into R Studio using commands you learned from the first computational activity. Using what you learned in both computational activity 1 and 2, answer the following questions:
+
+**Set-Up**
+```{r}
+#run this chunk first
+options("scipen" = 10) #converts to decimal format for viewing p-values
+library(adegenet) #remember, this loads the package so you can use it in your current session of R
+library(pegas)
+library(hierfstat)
+#Don't forget to set your working directory!
+```
+
+
+1. What kind of marker does this dataset represent? (1 point)
+```{r}
+
+```
+##Answer Here:
+
+**Transform the dataframe into a genind object, making sure to specify population**
+
+2. How many individuals were genotyped? (1 point)
+
+```{r}
+
+```
+##Answer Here:
+
+3. Test HWE. If the threshold of significance is 0.05, which loci are IN HWE? **remember, less than 0.05 means *NOT* in HWE** (3 points)
+
+```{r}
+
+```
+##Answer Here:
+
+**Transform the genind into a hierfstat dataframe**
+
+4. How many individuals were sampled from the VP population at the FCA082 locus? (1 point)
+
+```{r}
+
+```
+##Answer Here:
+
+5. How many alleles are found in the fifth population at the FCA105 locus? (1 point)
+
+```{r}
+
+```
+##Answer Here:
+
+6. Make a boxplot of the number of alleles at each locus across populations. Add a title to the boxplot. (**tip: population should be on the x-axis of the plot**)(3 points)
+
+```{r}
+
+```
+##Answer Here:
+
+7. Calculate Fst and Fis for the dataset with Nei's method. Interpret your values. Is there differentiation among populations, and if so, how strong is the structuring (see in class ppt)? (3 points)
+
+```{r}
+
+```
+##Answer Here:
+
+8. Calculate Fst and Fis for the dataset with Weir and Cockerham's method and write them in your answer. How do the values differ from Nei's method? (3 points)
+
+```{r}
+
+```
+##Answer Here:
+
+9. Run a DAPC using the following options: n.pca = 10, n.da = 4. (**tip: remember what kind of object adegenet expects and make sure you use that data! Also, you do not need to use the setPop option or specify population specifically for this command**) (1 point)
+
+```{r}
+
+```
+##Answer Here:
+
+10. Create a scatterplot of the DAPC. Which populations group together? What are the groupings based off of (**tip, look in the notes of our in-class exercise**)? (3 points)
+
+```{r}
+
+```
+##Answer Here:
+
+###Tips: 
+1. I am giving you a dataframe, and you need a hierfstat dataframe. To get this, first convert to genind using code from the previous computational activity, then use the code from computational activity #2 to convert a genind into a hierfstat dataframe.
+2. If you are struggling, first use your notes and the code from class. Second, google your question. Third, check with your partner and see if they could figure it out. Finally, if you really can't figure it out, message me on slack.  
+3. I don't mind if you work with others, but your answers and your code must be your own. 
+
+Dataset Source: Bull JK, Heurich M, Saveljev AP, Schmidt K, Fickel J, Förster DW (2016) The effect of reintroductions on the genetic variability in Eurasian lynx populations: the cases of Bohemian-Bavarian and Vosges-Palatinian populations. Conservation Genetics 17(5): 1229-1234. http://dx.doi.org/10.1007/s10592-016-0839-0. Dryad Digital Repository. http://dx.doi.org/10.5061/dryad.9k3k5
