@@ -70,8 +70,8 @@ summary(microbov) #some summary statistics about the loci
 
 ####Discriminate Analysis of Principal Components (DAPC): These groupings are based on the "largest between-group variance and the smallest within-group variance" with respect to allele frequencies (see above website link for more details). Again, **it is important to take away that these groupings of samples are based on similar allele frequencies**. But let's not get too bogged down in the math; let's run a DAPC!
 ```{r}
-setPop(microbov) <- ~Breed/Species #changes the population of the genind object 
-bov_dapc <- dapc(microbov, n.pca = 100, n.da = 4) #runs the dapc with 100 principal components; 4 discriminant functions.
+setPop(microbov) <- ~Breed/Species #changes the population of the genind object; you don't need to do this for your homework if you assigned your population appropriately when creating a genind object. 
+bov_dapc <- dapc(microbov, n.pca = 100, n.da = 4) #runs the dapc with 100 principal components; 4 discriminant functions. For the homework, these settings will be specified for you.
 scatter(bov_dapc) #plot the scatterplot of results with the "scatter" command
 ```
 What does this plot indicate? Do you notice any groupings in the data? Discuss with your neighbor what this graph is telling you.
