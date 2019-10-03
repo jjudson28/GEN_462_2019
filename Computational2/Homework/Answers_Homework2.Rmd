@@ -1,0 +1,157 @@
+ ---
+title: "Assignment_2_Answer_Key"
+output: html_notebook
+---
+
+##Part 1. Open the structure plot in your Assignment 2 folder (called STRUCTURE). Sample locations for each individual are below the structure plot. Answer the following question with a paragraph: explain and justify your answer. 
+
+1. How many groups do you think exist in the data? Why? Are these groupings consistent with the sampling locations? Why or why not?
+
+**5 points:**
+How many groups: 5 or 6 [1pt]; 
+Explanation of why: coloration of structure plot [1pt]; 
+Groups are mostly, but not completely, consistent[1pt]; 
+Explanation of why/why not: oregon and idaho samples cluster together, most locations cluster independently (if poor explanation, only get 1 pt) [2pts]
+
+Good Example Answer:
+There are 6 distinct groups in the structure plot. This is because there are 6 distinct color groupings, with one of the groupings containing equal proportions of the other colors (Kansas). The groups are mostly consistent with sampling location. The sample location is listed on the x axis of the plot, and for most sample locations, the samples group in the same color grouping, which suggests that allele frequencies are similar within that sample location. One exception is the group that contains Oregon and Idaho samples, as these group together. 
+
+**important part is that they justify. Either Kansas is its own group because it is an equal mix of other groups, or it is not its own group because it contains other groups within it.**
+
+
+##Part 2. In the Assignment_2 folder in your repository, there is a data file called "Dataset2". Read the file into R Studio using commands you learned from the first computational activity. Using what you learned in both computational activity 1 and 2, answer the following questions:
+
+**Set-Up**
+```{r}
+#run this chunk first
+options("scipen" = 10) #converts to decimal format for viewing p-values
+library(adegenet) #remember, this loads the package so you can use it in your current session of R
+library(pegas)
+library(hierfstat)
+#Don't forget to set your working directory!
+```
+
+1. What kind of marker does this dataset represent? 
+Microsatellite
+**Worth 1 Point: microsatellite: 0.5pt, code to read in dataset: 0.5pt**
+Code:
+```{r}
+#set your working directory
+name_of_dataset <- read.table("Dataset2.txt", header = TRUE, sep = "\t") #this code reads in the file and creates a variable containing the Dataset file called "name_of_dataset"; the file has a header and is tab-separated; once run, the variable name_of_dataset should show up in the global environment of R Studio
+```
+
+**Transform the dataframe into a genind object, making sure to specify population**
+**(see code below to do this)**
+
+2. How many individuals were genotyped? 
+152
+**Worth 1 Point: 152: 0.5pt, code to count individuals: 0.5pt**
+Code:
+```{r}
+nrow(name_of_dataset) #get the number of rows in the dataset
+
+##OR##
+
+population <- as.character(name_of_dataset$Population) #assign a variable that contains all of the population data from the name_of_dataset dataset in the column population
+
+newdataset <- name_of_dataset[,c(-1)] #remove the column with the population data (exclude column 1)
+
+genind_object <- df2genind(newdataset, ploidy = 2, NA.char = "NA", ncode = 3, pop = population) #convert dataframe (name_of_dataset) into a genind object using ploidy = diploid, the character for missing data = NA, there is no separator so we use the number of digits that make up an allele (3), and the population column is the population variable we created earlier
+
+genind_object #if you look at the genind object, you can figure out the number of individuals in the dataset
+```
+
+3. Test HWE. If the threshold of significance is 0.05, which loci are in HWE? **remember, less than 0.05 means *NOT* in HWE** 
+
+FCA441, FCA006, FCA0097
+**Worth 3 Points: if all 3 listed, 2pts; if some missing, 1pt; if wrong loci are given, 0pts , code to test HWE: 1pt**
+Code:
+```{r}
+hw.test(genind_object, B=0)
+```
+
+**Transform the genind into a hierfstat dataframe**
+```{r}
+hierfstat_obj <- genind2hierfstat(genind_object)
+```
+
+
+4. How many individuals were sampled from the VP population at the FCA082 locus? (1 point)
+
+22
+**Worth 1 Point: 22: 0.5pt, code to get individuals sampled: 0.5pt**
+Code:
+```{r}
+ind.count(hierfstat_obj) #gives you the number of individuals sampled for each population and each locus
+```
+
+5. How many alleles are found in the fifth population at the FCA105 locus? (1 point)
+
+4, 24 okay if used allele.count
+**Worth 1 Point: 4: 0.5pt, code to get number alleles: 0.5pt**
+Code:
+```{r}
+obj_alleles <- allele.count(hierfstat_obj) #gives you the number of alleles for each population and each locus
+sum(obj_alleles$FCA105[,5]!=0) #index just the FCA105 locus at column 5 (the Poland population), and sum the number of entries that are not (!) equal to 0. You could also just count how many alleles are represented from the table produced from obj_alleles
+
+##OR##
+
+nb.alleles(hierfstat_obj) #number of alleles at each locus for each population
+```
+
+6. Make a boxplot of the number of alleles at each locus across populations. Add a title to the boxplot. (3 points)
+
+**Worth 3 Points:
+**if missing title, -1**
+**if wrong boxplot but used nb.alleles in code, and has title, -1**
+**if wrong boxplot and used another allele count code, and has title -1**
+**if wrong boxplot and used an unrelated code (ex:fst calculations), -2**
+**if wrong boxplot and used an unrelated code (ex:fst calculations), with no title -3**
+Code:
+```{r}
+boxplot(nb.alleles(hierfstat_obj), main = "Number of Alleles for Each Population")
+```
+
+7. Calculate Fst and Fis for the dataset with Nei's method. Interpret your values. Is there differentiation among populations, and if so, how strong is the structuring? (3 points)
+
+Overall: Fst=0.1615; Fis=0.0243. Student should mention that there is moderate to great genetic differentiation among populations.
+**Worth 3 Points: Fst and Fis values (can show the table or just report overall values), 1pt; interpretation, 1pt; code to calculate Fst and Fis: 1pt**
+Code:
+```{r}
+Fstats <- basic.stats(hierfstat_obj) #f-statistics with Nei's method (1987)
+Fstats
+```
+
+8. Calculate Fst and Fis for the dataset with Weir and Cockerham's method. How do the values differ from Nei's method? (3 points)
+
+Fst= 0.1746021; Fis= 0.03059072. Student should mention that the values for Fst and Fis are greater for the WC method than Nei's method, but aren't really that different from each other.
+**Worth 3 Points: Fst and Fis values (can show the table or just report overall values), 1pt; how the values differ, 1pt; code to calculate Fst and Fis using WC method: 1pt**
+Code:
+```{r}
+wc(hierfstat_obj) #f-statistics with Weir and Cockerham method
+```
+
+9. Run a DAPC using the following options: n.pca = 10, n.da = 4. (1 point)
+
+**Worth 1 Point: code to run DAPC**
+Code:
+```{r}
+dapc_obj <- dapc(genind_object, genind_object$pop, n.pca = 10, n.da = 4) #pop designation is not necessary, 100 principal components; 4 discriminant functions
+dapc_obj2 <- dapc(genind_object, n.pca = 10, n.da = 4)#code without pop designation also works
+dapc_obj
+dapc_obj2
+```
+
+
+10. Create a scatterplot of the DAPC. Which populations group together? What are the groupings based off of? (3 points)
+
+Poland is a group that is distinct from the others, while Estonia Russia and Latvia make a group and the remaining populations make another group.
+
+The groupings are based on population allele frequencies.
+**Worth 3 Points: Which populations group together, 1pt; what groupings are based off of, 1pt; code to get scatterplot: 1pt**
+Code:
+```{r}
+scatter(dapc_obj) #shows scatterplot of DAPC
+```
+
+Dataset Source: Bull JK, Heurich M, Saveljev AP, Schmidt K, Fickel J, Förster DW (2016) The effect of reintroductions on the genetic variability in Eurasian lynx populations: the cases of Bohemian-Bavarian and Vosges-Palatinian populations. Conservation Genetics 17(5): 1229-1234. http://dx.doi.org/10.1007/s10592-016-0839-0. Dryad Digital Repository. http://dx.doi.org/10.5061/dryad.9k3k5
