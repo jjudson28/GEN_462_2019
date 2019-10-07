@@ -1,0 +1,169 @@
+---
+title: "Computational Exercise #3"
+output: html_notebook
+---
+
+#Genetic Drift, Migration, and Selection
+
+#Genetic Drift
+Genetic drift: fluctuation in allele frequencies over time due to sampling error.
+
+We will run a simulation of genetic drift in a diploid population.
+**Set-up**
+```{r}
+install.packages("ggplot2")
+install.packages("reshape")
+library(ggplot2)
+library(reshape)
+```
+
+Let's Simulate Genetic Drift (using Wright-Fisher model)
+```{r}
+# Set up parameters
+N = 2000 # number of diploid individuals (population size)
+N.chrom = 2*N # number of chromosomes (2 for each diploid individual)
+p = .5; q = 1-p #beginning allele frequencies
+N.gen = 100 # number of generations
+N.sim = 5 # number of simulations
+
+
+# Simulation: Imagine the bag of marbles analogy: See https://www.pathwayz.org/Tree/Plain/GENETIC+DRIFT; this simulation is choosing alleles at random from the population, conditional on their initial frequency, to create the allele frequencies of the next generation.
+X = array(0, dim=c(N.gen,N.sim)) #creating just a blank table with the correct number of columns (simulations) and rows (generations)
+X[1,] = rep(N.chrom*p,N.sim) # initialize proportion of p alleles in FIRST generation (multiply number of chromosomes by the allele frequency p)
+for(j in 1:N.sim){
+  for(i in 2:N.gen){
+    X[i,j] = rbinom(1,N.chrom,prob=X[i-1,j]/N.chrom)
+    }  
+  }
+X = data.frame(X/N.chrom)
+
+#using a binomial sampling method (success or failure, or whether you sample allele p or not), sample for each individual in each generation (N.chrom contains information about how many individuals there are). The 'prob=' contains information about the starting allele frequency (the frequency of p in the previous generation)
+
+# Reshape data and plot the 5 simulations; This plots only frequency of p allele, but you can use the equation 1-p to figure out q at any point in the simulation.
+sim_data <- melt(X) #reformats table for plotting
+ggplot(sim_data, aes(x = rep(c(1:100), N.sim), y = value, colour = variable)) + geom_line() + xlab("Generation") + ylab("Allele Frequency") + ylim(0,1) + labs(colour = "Simulations")
+```
+
+
+
+#Migration
+Continent-island model: large continent with island, unidirectional migration toward island from continent
+For reminder of equation details, see L7_FstatsMigration_2019.pdf lecture, slides 22-27
+
+```{r}
+migration_rate = 0.2 #PROPORTION of individuals from continent that move to island subpopulation
+
+p_continent = 1 #allele frequency of p in the continent population; migrants will have this allele frequency of p
+p_island = 0.2 #non-migrants have this allele frequency of p BEFORE migration occurs; also denoted as Po or P(n-1)
+n = 200 #number of generations
+
+##Solve for Pn, the allele frequency in the subpopulation after 1 generation##
+
+(1-migration_rate)*p_island + (migration_rate*p_continent)
+#Where 1-migration rate is the number of individuals that did not migrate, which is multiplied by the initial allele frequency of p on the island before migration occured; the second part of the equation multiplies the migration rate by the p allele frequency of the migrant individuals coming from the continent.
+```
+
+Let's do this over multiple generations now. How do allele frequencies change over time?
+```{r}
+options(digits = 2, scipen = 10)
+#after many generations:
+
+#create an empty dataframe that will be filled with values of allele frequencies
+alleles <- data.frame(a=as.numeric(),
+                 b=as.numeric(), 
+                 c=as.numeric(), 
+                 stringsAsFactors=FALSE) 
+
+p = rep(NA,n)
+p[1]=p_island #we want the initial value of allele frequency of p in the island population to be equal to what we set the frequency of p to be earlier
+
+#initialize a loop. This says, for every generation, we will take the value of p (the island allele freq. of p) at time i, plug it into our equation for continent-island migration, and calculate p at time i+1. Then, use that new p value and plug it into our equation to calculate p at time i+2. The allele frequency of q (called freq_q) is calculated using the equation q=1-p.
+for (i in 1 : n) {
+    p[i+1] = (1-migration_rate)*p[i]+(migration_rate*p_continent)
+    freq_q = 1-p[i+1]
+    alleles = rbind(alleles, data.frame(i, cbind(p[i+1], freq_q)))
+}
+
+colnames(alleles) <- c("Generation","p","q") #naming the columns in our created dataframe
+alleles <- rbind(c(0,p_island,1-p_island), alleles) #add and fill in the first row of the dataframe with initial allele frequencies for the island (at generation 0)
+```
+
+Let's plot our allele frequencies over time:
+```{r}
+plot(alleles$Generation, #the values for the x axis
+     alleles$p, #the values for the y axis
+     type="l", #we want a line graph
+     col="red", #color the first plotted line, p vs. Generation, red
+     ylim = c(0, 1), #we want the y axis to display values from 0 to 1
+     xlab = "Generation", #name the x axis
+     ylab = "Allele Frequency", #name the y axis
+     main = "Allele Frequency Change Over Time") #add title to plot
+lines(alleles$Generation,alleles$q,col="green") #this adds the line for the allele frequency of q onto the plot in green
+legend(160, 0.8, #give x and y coordinates for where you want the key
+       legend=c("p", "q"), #we want both lines on the legend, named for the alleles
+       col=c("red", "green"), #the color of the two lines
+       lwd=2, #line width of legend line
+       cex=0.8) #font size
+```
+
+
+#Selection
+Natural selection can also cause alleles to deviate from HWE by favoring certain phenotypes over others. This results in the selection either for certain genotypes and increasing their frequency or selecting against certain genotypes and decreasing their frequency.
+
+Lets simulate selection in a population of diploid individuals, based on your in-class worksheet you used for selection ("Seln In class exercise ANSWERS.pdf").
+```{r}
+number_of_generations = 100 #how many generations do you want the simulation to run?
+
+#relative fitnesses
+fitness_aa = 1
+fitness_ab = 0.9
+fitness_bb = 0.6
+
+#Starting frequencies of alleles and genotypes
+freq_a = 0.7
+ 
+freq_b = 1 - freq_a
+freq_aa = freq_a^2
+freq_ab = 2 * freq_a * freq_b
+freq_bb = freq_b^2
+ 
+genotypes = data.frame(t = 0, cbind(freq_aa, freq_ab, freq_bb))
+alleles_frequency = data.frame(t = 0, cbind(freq_a, freq_b))
+ 
+for (t in 1 : number_of_generations) {
+ 
+    x_freq_a = freq_aa + 0.5 * freq_ab
+    x_freq_b = freq_bb + 0.5 * freq_ab
+ 
+    x_freq_aa = freq_aa * fitness_aa
+    x_freq_ab = freq_ab * fitness_ab
+    x_freq_bb = freq_bb * fitness_bb
+     
+    w = x_freq_aa + x_freq_ab + x_freq_bb
+     
+    freq_a = (x_freq_a*((x_freq_a*fitness_aa)+(x_freq_b*fitness_ab)))/w
+    freq_b = 1 - freq_a
+    
+    freq_aa = freq_a^2
+    freq_ab = 2 * freq_a * freq_b
+    freq_bb = freq_b^2
+      
+    genotypes = rbind(genotypes, data.frame(t, cbind(freq_aa, freq_ab, freq_bb)))
+    alleles_frequency = rbind(alleles_frequency, data.frame(t, cbind(freq_a, freq_b)))
+}
+```
+
+Let's plot the results of the a allele:
+```{r}
+plot(alleles_frequency$t, alleles_frequency$freq_a,type="l",col="red", xlab="Generations", ylab="Frequency of A", ylim = c(0,1)) 
+#ylim command sets y limits of axis; 0 is the lower limit and 1 is the upper limit
+```
+
+What about the homozygous recessive genotype?:
+```{r}
+plot(genotypes$t, genotypes$freq_bb,type="l",col="red", xlab="Generations", ylab="Frequency of bb")
+```
+
+Resources:
+
+Genetic Drift: http://statisticalrecipes.blogspot.com/2012/02/simulating-genetic-drift.html; https://rpubs.com/jcross/random_drift
