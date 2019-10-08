@@ -1,0 +1,83 @@
+---
+title: "Assignment_3"
+output: html_notebook
+---
+
+Answer the questions in this R Notebook file and send the .Rmd file in a direct message to me via Slack by Thursday, October 17th at 5pm. Save the assignment as your full name, last and first, before you send it to me (example file name: "JudsonJessica.Rmd"). Show all of your code you used to answer the questions (I have inserted grey code boxes to indicate where you should have code associated with the question) and make sure you provide the answer where I have indicated below the question. Make sure you either do not change the format of the assignment, or if you do, number your answers.
+
+###Note: You should report the code to make your plots; a good starting point is to copy and paste the simulation code from the in-class exercise, then modify the settings to get the results you want. Make sure that you report the settings you used for the simulation to generate the plots; ex: selection coefficient = 0.2, #generations=10000, ect. if you only copy and paste the simulation code once.
+
+###Please also turn in the .html file when you turn in your .Rmd file. When you view your .html file, it should have all of your plots clearly displayed. If you are having trouble with this, please let me know!
+
+Set-Up
+```{r}
+library(ggplot2)
+library(reshape)
+```
+
+##Part 1. Answer the following questions regarding mutation **tip: Refer to your mutation lecture (L8_MigrationII_Mutation_Linkage.pdf) and the in-class exercise (08_InClassExercise_ANSWERS.pdf) to help you answer these questions**
+
+1. In the model of forward and reverse mutation, what is the equilibrium frequency p of A if the forward mutation rate is 10e-4 and the back mutation rate is 10e-7? (1 point) **Note: 10e-7 is the same as saying "10x10^-7" or "ten times ten to the negative seventh power"**
+
+2. What is the relationship between inbreeding and mutation? (1 point)
+
+3. Consider the equation for the total number of expected mutations per genome copy: (Genome Size x Mutation Rate). How does genome size influence the total number of mutations an organism will have, holding mutation rate constant? (1 point)
+
+4. Which of these two organisms has a higher number of expected mutations per copy? (1 point)
+  A. Moth: Genome size of 2.8e9, mutation rate of 10e-4
+  B. Squirrel: Genome size of 3.2e9, mutation rate of 10e-7
+
+##Part 2. Answer the following questions regarding SELECTION:
+
+5. Set your simulation to relative fitness of aa=1 and relative fitness of ab=1. Set initial frequency of a to 0.5. How does the relative fitness of the bb genotype influence the rate of decrease in frequency of the bb genotype, holding all else constant? **I want genotype information here, not allele information** (1 point)
+
+6. Generate two plots (line graphs) that support your conclusion for question 5. (2 points)
+```{r}
+
+```
+
+7. Set your simulation to relative fitness of aa=1, relative fitness of ab=1, and relative fitness of bb=0.5. Set initial frequency of a to 0.5. Using slide 31-48, particularly 39, of the Selection lecture (L9_LD_NaturalSelection.pdf) as a guide, is the a allele dominant, semidominant, or recessive in this scenario? You can plot the frequency of the a allele if it helps you visualize the pattern. Make sure you understand the "h" variable from the lecture and how that influences relative fitness. (1 point)
+
+8. Set your simulation to relative fitness of aa=1, relative fitness of ab=1, and relative fitness of bb=0.5. How does the starting frequency of the a allele influence the rate of increase of the frequency of the a allele (holding all else constant)? (1 point)
+
+9. Generate two plots (line graphs) that support your conclusion for question 8. (2 points)
+```{r}
+
+```
+
+10. Using your knowledge of the rate of allele frequency change from the selection lecture (L9_LD_NaturalSelection.pdf), how would you explain the observed relationship you described in #8 between initial a allele frequency and the rate of increase of the a allele frequency? *think about how selection acts on recessive alleles when they become rare in the population* (1 point)
+
+##Part 3. Answer the following questions regarding MIGRATION:
+11. How does the migration rate from the continent to the island influence the allele frequencies of the island population? (1 point)
+
+12. Generate two plots (line graphs) that support your conclusion for question 11. Tip: your question asks about allele frequencies, so your plots should have the line for both frequency of p and q. (2 points)
+```{r}
+
+```
+
+13. How does the frequency of p in the continent population influence the allele frequencies of the island population when holding migration rate constant? (1 point)
+
+14. Generate two plots (line graphs) that support your conclusion for question 13. (2 points)
+```{r}
+
+```
+
+15. Based on your answers for 11 and 13, what happens to variation in allele frequencies between populations (continent and island) when migration is occurring? (1 point)
+
+##Part 4. Answer the following questions regarding GENETIC DRIFT:
+16. How does the initial A allele frequency, p, influence the pattern of genetic drift/fixation of the A allele across simulations? (1 point)
+
+17. Generate two plots (line graphs) that support your conclusion for question 16. **Set your N = 50 for this simulation.** (2 points)
+```{r}
+
+```
+
+18. Change the number of diploid individuals in the population in your simulation, keeping everything else constant. What pattern do you see when comparing changes in the frequency of the A allele in large populations versus small populations? Why would you expect to see this pattern? (2 points)
+
+19. What happens to genetic variation under a model that includes genetic drift (think about a single population experiencing drift)? (1 point)
+
+###Tips: 
+1. I have given you all of the code for the simulations and the plots. You should modify the settings of the simulations and the important aspects of the plots to address the questions.
+2. Google is your friend! If you are struggling, first use your notes and the code from class. Second, google your question. Third, check with your partner and see if they could figure it out. Finally, if you really can't figure it out, message me on slack.  
+3. I don't mind if you work with others, but your answers and your code must be your own.
+4. Make sure you remember to review your lecture notes. They will help you with the overall concepts.
