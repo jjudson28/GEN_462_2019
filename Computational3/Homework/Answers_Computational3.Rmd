@@ -1,0 +1,414 @@
+---
+title: "Assignment_3 Answer Key"
+output: html_notebook
+---
+
+##Part 1. Answer the following questions regarding mutation:
+1. In the model of forward and reverse mutation, what is the equilibrium frequency p of A if the forward mutation rate is 10e-4 and the back mutation rate is 10e-7? (1 point)
+
+**Worth 1 Point: 0.000999001 (rounding to 0.001 is ok)**
+###Code is not required here###
+```{r}
+#Equation: v/(u+v)
+v=10*10^-7 #back mutation rate
+u=10*10^-4 #forward mutation rate
+v/(u+v)
+```
+
+
+2. What is the relationship between inbreeding and mutation? (1 point)
+
+As mutation increases, inbreeding decreases.
+**Worth 1 Point: answer**
+###Code is not required here###
+
+3. How does genome size influence the total number of mutations an organism will have, holding mutation rate constant? (1 point)
+
+As the genome size increases, the total number of mutations increases.
+**Worth 1 Point: answer**
+###Code is not required here###
+```{r}
+#Equation: g*u
+g=3.2*10^9 #genome size
+u=10*10^-4 #forward mutation rate
+g*u
+g1=2.8*10^9 #smaller genome size
+g1*u
+```
+
+4. Which of these two organisms has a higher number of mutations per copy? (1 point)
+  A. Moth: Genome size of 2.8e9, mutation rate of 10e-4
+  B. Squirrel: Genome size of 3.2e9, mutation rate of 10e-7
+  
+A. Moth
+**Worth 1 Point: answer**
+###Code is not required here###
+```{r}
+#Equation: g*u
+mothg=2.8*10^9 #genome size of moth
+mothu=10*10^-4 #forward mutation rate of moth
+moth <- mothg*mothu
+sprintf("Moth: %d", moth)
+
+squirrelg=3.2*10^9 #genome size of squirrel
+squirrelu=10*10^-7 #forward mutation rate of squirrel
+squirrel <- squirrelg*squirrelu
+sprintf("Squirrel: %d", squirrel)
+```
+
+##Part 2. Answer the following questions regarding selection:
+
+5. Set your simulation to relative fitness of aa=1 and relative fitness of ab=1. Set initial frequency of a to 0.5. How does the relative fitness of the bb genotype influence the rate of decrease in frequency of the bb genotype, holding all else constant? **I want genotype information here, not allele information** (1 point)
+
+The lower the relative fitness, the faster the genotype frequency of bb changes. When allele frequency of a approaches one, genotype frequency change slows.
+
+**Worth 1 Point: answer**
+###Code is not required here###
+
+6. Generate two plots (line graphs) that support your conclusion for question 5. (2 points)
+
+**Worth 2 Points**
+code for plot #1: 1pt; 
+code for plot #2: 1pt
+```{r}
+##The simulation code is not necessary for this answer. Students should at least specify what their settings are for the selection coefficient.
+
+number_of_generations = 100 #how many generations do you want the simulation to run?
+
+#relative fitnesses
+fitness_aa = 1
+fitness_ab = 1
+fitness_bb = 0.6
+
+#Starting frequencies of alleles and genotypes
+freq_a = 0.5
+ 
+freq_b = 1 - freq_a
+freq_aa = freq_a^2
+freq_ab = 2 * freq_a * freq_b
+freq_bb = freq_b^2
+ 
+genotypes = data.frame(t = 0, cbind(freq_aa, freq_ab, freq_bb))
+alleles_frequency = data.frame(t = 0, cbind(freq_a, freq_b))
+ 
+for (t in 1 : number_of_generations) {
+ 
+    x_freq_a = freq_aa + 0.5 * freq_ab
+    x_freq_b = freq_bb + 0.5 * freq_ab
+ 
+    x_freq_aa = freq_aa * fitness_aa
+    x_freq_ab = freq_ab * fitness_ab
+    x_freq_bb = freq_bb * fitness_bb
+     
+    w = x_freq_aa + x_freq_ab + x_freq_bb
+     
+    freq_a = (x_freq_a*((x_freq_a*fitness_aa)+(x_freq_b*fitness_ab)))/w
+    freq_b = 1 - freq_a
+    
+    freq_aa = freq_a^2
+    freq_ab = 2 * freq_a * freq_b
+    freq_bb = freq_b^2
+      
+    genotypes = rbind(genotypes, data.frame(t, cbind(freq_aa, freq_ab, freq_bb)))
+    alleles_frequency = rbind(alleles_frequency, data.frame(t, cbind(freq_a, freq_b)))
+}
+```
+```{r}
+##The code for the plots is required!!!
+#Plot 1: bb relative fitness = 0.6
+plot(genotypes$t, genotypes$freq_bb,type="l",col="red", xlab="Generations", ylab="Frequency of bb", main = "Relative Fitness 0.6")
+```
+```{r}
+#Plot 2: bb relative fitness 0.95
+plot(genotypes$t, genotypes$freq_bb, type="l",col="red", xlab="Generations", ylab="Frequency of bb", main = "Relative Fitness 0.95")
+```
+
+7. Set your simulation to relative fitness of aa=1, relative fitness of ab=1, and relative fitness of bb=0.5. Set initial frequency of a to 0.5. Using slide 13-15 of the Selection lecture (11Selection1.2018.pdf) as a guide, is the a allele dominant, semidominant, or recessive in this scenario? You can plot the frequency of the a allele if it helps you visualize the pattern. Make sure you understand the "h" variable from the lecture and how that influences relative fitness. (1 point)
+
+Allele a is dominant.
+**Worth 1 Point: answer**
+###Code is not required here###
+
+8. Set your simulation to relative fitness of aa=1, relative fitness of ab=1, and relative fitness of bb=0.5. How does the starting frequency of the a allele influence the rate of increase of the a allele (holding all else constant)? (1 point)
+
+The higher the initial frequency of the a allele, the slower the rate of increase of the frequency of the a allele. Student can mention that fixation occurs sooner in higher allele frequencies, but for #10 I am specifically looking for the action of selection on rare alleles.
+**Worth 1 Point: answer**
+###Code is not required here###
+
+9. Generate two plots (line graphs) that support your conclusion for question 8. (2 points)
+
+**Worth 2 Points**
+code for plot #1: 1pt; 
+code for plot #2: 1pt
+```{r}
+##The simulation code is not necessary for this answer. Students should at least specify what their settings are for the selection coefficient.
+
+number_of_generations = 100 #how many generations do you want the simulation to run?
+
+#relative fitnesses
+fitness_aa = 1
+fitness_ab = 1
+fitness_bb = 0.5
+
+#Starting frequencies of alleles and genotypes
+freq_a = 0.8
+ 
+freq_b = 1 - freq_a
+freq_aa = freq_a^2
+freq_ab = 2 * freq_a * freq_b
+freq_bb = freq_b^2
+ 
+genotypes = data.frame(t = 0, cbind(freq_aa, freq_ab, freq_bb))
+alleles_frequency = data.frame(t = 0, cbind(freq_a, freq_b))
+ 
+for (t in 1 : number_of_generations) {
+ 
+    x_freq_a = freq_aa + 0.5 * freq_ab
+    x_freq_b = freq_bb + 0.5 * freq_ab
+ 
+    x_freq_aa = freq_aa * fitness_aa
+    x_freq_ab = freq_ab * fitness_ab
+    x_freq_bb = freq_bb * fitness_bb
+     
+    w = x_freq_aa + x_freq_ab + x_freq_bb
+     
+    freq_a = (x_freq_a*((x_freq_a*fitness_aa)+(x_freq_b*fitness_ab)))/w
+    freq_b = 1 - freq_a
+    
+    freq_aa = freq_a^2
+    freq_ab = 2 * freq_a * freq_b
+    freq_bb = freq_b^2
+      
+    genotypes = rbind(genotypes, data.frame(t, cbind(freq_aa, freq_ab, freq_bb)))
+    alleles_frequency = rbind(alleles_frequency, data.frame(t, cbind(freq_a, freq_b)))
+}
+```
+```{r}
+##Plot 1: Starting Frequency 0.3
+plot(alleles_frequency$t, alleles_frequency$freq_a,type="l",col="red", xlab="Generations", ylim = c(0,1), ylab="Frequency of A", main = "Starting Frequency 0.3")
+```
+```{r}
+##Plot 2: Starting Frequency 0.8
+plot(alleles_frequency$t, alleles_frequency$freq_a,type="l",col="red", xlab="Generations", ylim = c(0,1), ylab="Frequency of A", main = "Starting Frequency 0.8")
+```
+
+10. Using your knowledge of the rate of allele frequency change from the selection lecture (11Selection1.2018.pdf), how would you explain the observed relationship you described in #8 between initial a allele frequency and the rate of increase of the a allele frequency? (1 point)
+
+As the initial frequency of the dominant a allele increases, the frequency of the deleterious recessive b allele decreases (a+b=1). From lecture, the student should have learned that as the recessive allele becomes more rare, the rate of change in allele frequencies is slower. Allele frequency change is very slow when the recessive allele is rare.
+**Worth 1 Point: answer**
+###Code is not required here###
+
+##Part 3. Answer the following questions regarding migration:
+11. How does the migration rate from the continent to the island influence the allele frequencies of the island population? (1 point)
+
+Increasing the migration rate increases the rate of change of allele frequencies, up until there is an equilibrium with the frequency of each allele between island and continent (freq p island = freq p continent). The frequencies of alleles on island and continent reach equilibrium faster with increased migration rates.
+**Worth 1 Point: answer**
+###Code is not required here###
+
+12. Generate two plots (line graphs) that support your conclusion for question 11. Tip: your question asks about allele frequencies, so your plots should have the line for both frequency of p and q. (2 points)
+
+**Worth 2 Points**
+code for plot #1: 1pt; 
+code for plot #2: 1pt
+```{r}
+##The simulation code is not necessary for this answer. Students should at least specify what their settings are for the migration rate.
+
+migration_rate = 0.5 #PROPORTION of individuals from continent that move to island subpopulation
+
+p_continent = 0.5 #allele frequency of p in the continent population; migrants will have this allele frequency of p
+p_island = 0.2 #non-migrants have this allele frequency of p before migration occurs; also denoted as Po
+n = 50 #number of generations
+
+options(scipen = 10)
+
+#create an empty dataframe that will be filled with values of allele frequencies
+alleles <- data.frame(a=as.numeric(),
+                 b=as.numeric(), 
+                 c=as.numeric(), 
+                 stringsAsFactors=FALSE) 
+
+p = rep(NA,n)
+p[1]=p_island #we want the initial value of allele frequency of p in the island population to be equal to what we set the frequency of p to be earlier
+
+#initialize a loop. This says, for every generation, we will take the value of p (the island allele freq. of p) at time i, plug it into our equation for continent-island migration, and calculate p at time i+1. Then, use that new p value and plug it into our equation to calculate p at time i+2. The allele frequency of q
+for (i in 1 : n) {
+    p[i+1] = (1-migration_rate)*p[i]+(migration_rate*p_continent)
+    freq_q = 1-p[i+1]
+    alleles = rbind(alleles, data.frame(i, cbind(p[i+1], freq_q)))
+}
+
+colnames(alleles) <- c("Generation","p","q") #naming the columns in our created dataframe
+alleles <- rbind(c(0,p_island,1-p_island), alleles) #add and fill in the first row of the dataframe with initial allele frequencies for the island (at generation 0)
+```
+**Plotting:**
+##Plot 1: Migration Rate =0.1
+```{r}
+plot(alleles$Generation, #the values for the x axis
+     alleles$p, #the values for the y axis
+     type="l", #we want a line graph
+     col="red", #color the first plotted line, p vs. Generation, red
+     ylim = c(0, 1), #we want the y axis to display values from 0 to 1
+     xlab = "Generation", #name the x axis
+     ylab = "Allele Frequency", #name the y axis
+     main = "Allele Frequency Migration Rate 0.1") #add title to plot
+lines(alleles$Generation,alleles$q,col="green") #this adds the line for the allele frequency of q onto the plot in green
+legend(0, 1, #give x and y coordinates for where you want the key
+       legend=c("p", "q"), #we want both lines on the legend, named for the alleles
+       col=c("red", "green"), #the color of the two lines
+       lwd=2, #line width of legend line
+       cex=0.8) #font size
+```
+##Plot 2: Migration Rate =0.5
+```{r}
+plot(alleles$Generation, #the values for the x axis
+     alleles$p, #the values for the y axis
+     type="l", #we want a line graph
+     col="red", #color the first plotted line, p vs. Generation, red
+     ylim = c(0, 1), #we want the y axis to display values from 0 to 1
+     xlab = "Generation", #name the x axis
+     ylab = "Allele Frequency", #name the y axis
+     main = "Allele Frequency Migration Rate 0.5") #add title to plot
+lines(alleles$Generation,alleles$q,col="green") #this adds the line for the allele frequency of q onto the plot in green
+legend(0, 1, #give x and y coordinates for where you want the key
+       legend=c("p", "q"), #we want both lines on the legend, named for the alleles
+       col=c("red", "green"), #the color of the two lines
+       lwd=2, #line width of legend line
+       cex=0.8) #font size
+```
+13. How does the frequency of p in the continent population influence the allele frequencies of the island population when holding migration rate constant? (1 point)
+
+If the continent frequency of p is higher than the frequency of p in the island population, the frequency of p in the island population will increase until the island p and continent p frequencies are the same. If the continent frequency of p is lower than the island p, island p frequency will decrease until it matches the continent population p frequency.
+**Worth 1 Point: answer**
+###Code is not required here###
+
+14. Generate two plots (line graphs) that support your conclusion for question 13. (2 points)
+
+**Worth 2 Points**
+code for plot #1: 1pt; 
+code for plot #2: 1pt
+```{r}
+##The simulation code is not necessary for this answer. Students should at least specify what their settings are for the continent p frequency.
+
+migration_rate = 0.1 #PROPORTION of individuals from continent that move to island subpopulation
+
+p_continent = 0.9 #allele frequency of p in the continent population; migrants will have this allele frequency of p
+p_island = 0.5 #non-migrants have this allele frequency of p before migration occurs; also denoted as Po
+n = 50 #number of generations
+options(scipen = 10)
+
+#create an empty dataframe that will be filled with values of allele frequencies
+alleles <- data.frame(a=as.numeric(),
+                 b=as.numeric(), 
+                 c=as.numeric(), 
+                 stringsAsFactors=FALSE) 
+
+p = rep(NA,n)
+p[1]=p_island #we want the initial value of allele frequency of p in the island population to be equal to what we set the frequency of p to be earlier
+
+#initialize a loop. This says, for every generation, we will take the value of p (the island allele freq. of p) at time i, plug it into our equation for continent-island migration, and calculate p at time i+1. Then, use that new p value and plug it into our equation to calculate p at time i+2. The allele frequency of q
+for (i in 1 : n) {
+    p[i+1] = (1-migration_rate)*p[i]+(migration_rate*p_continent)
+    freq_q = 1-p[i+1]
+    alleles = rbind(alleles, data.frame(i, cbind(p[i+1], freq_q)))
+}
+
+colnames(alleles) <- c("Generation","p","q") #naming the columns in our created dataframe
+alleles <- rbind(c(0,p_island,1-p_island), alleles) #add and fill in the first row of the dataframe with initial allele frequencies for the island (at generation 0)
+```
+##Plot 1: Continent p = 0.3
+```{r}
+plot(alleles$Generation, #the values for the x axis
+     alleles$p, #the values for the y axis
+     type="l", #we want a line graph
+     col="red", #color the first plotted line, p vs. Generation, red
+     ylim = c(0, 1), #we want the y axis to display values from 0 to 1
+     xlab = "Generation", #name the x axis
+     ylab = "Allele Frequency", #name the y axis
+     main = "Allele Frequency with Continent p = 0.3") #add title to plot
+lines(alleles$Generation,alleles$q,col="green") #this adds the line for the allele frequency of q onto the plot in green
+legend(0, 1, #give x and y coordinates for where you want the key
+       legend=c("p", "q"), #we want both lines on the legend, named for the alleles
+       col=c("red", "green"), #the color of the two lines
+       lwd=2, #line width of legend line
+       cex=0.8) #font size
+```
+##Plot 2: Continent p =0.9
+```{r}
+plot(alleles$Generation, #the values for the x axis
+     alleles$p, #the values for the y axis
+     type="l", #we want a line graph
+     col="red", #color the first plotted line, p vs. Generation, red
+     ylim = c(0, 1), #we want the y axis to display values from 0 to 1
+     xlab = "Generation", #name the x axis
+     ylab = "Allele Frequency", #name the y axis
+     main = "Allele Frequency Continent p = 0.9") #add title to plot
+lines(alleles$Generation,alleles$q,col="green") #this adds the line for the allele frequency of q onto the plot in green
+legend(0, 1, #give x and y coordinates for where you want the key
+       legend=c("p", "q"), #we want both lines on the legend, named for the alleles
+       col=c("red", "green"), #the color of the two lines
+       lwd=2, #line width of legend line
+       cex=0.8) #font size
+```
+
+15. Based on your answers for 11 and 13, what happens to variation in allele frequencies between populations when migration is occurring? (1 point)
+
+Variation in allele frequencies decreases when migration is occurring.
+**Worth 1 Point: answer**
+###Code is not required here###
+
+##Part 4. Answer the following questions regarding genetic drift:
+16. How does the initial A allele frequency, p, influence the pattern of genetic drift/fixation of the A allele across simulations? (1 point)
+
+Higher allele frequencies of p are more likely to reach fixation, while low frequencies of p are more likely to result in the loss of the p allele from the population. 
+**Worth 1 Point: answer**
+###Code is not required here###
+
+17. Generate two plots (line graphs) that support your conclusion for question 16. **Set your N = 50 for this simulation.** (2 points)
+
+**Worth 2 Points**
+code for plot #1: 1pt; 
+code for plot #2: 1pt
+```{r}
+##The simulation code is not necessary for this answer. Students should at least specify what their settings are for the initial p frequency.
+
+# Set up parameters
+N = 50 # number of diploid individuals
+N.chrom = 2*N # number of chromosomes (2 for each diploid individual)
+p = .7; q = 1-p #beginning allele frequencies
+N.gen = 100 # number of generations
+N.sim = 5 # number of simulations
+
+
+# Simulation
+X = array(0, dim=c(N.gen,N.sim))
+X[1,] = rep(N.chrom*p,N.sim) # initialize number of A1 alleles in first generation
+for(j in 1:N.sim){
+  for(i in 2:N.gen){
+    X[i,j] = rbinom(1,N.chrom,prob=X[i-1,j]/N.chrom)
+    }  
+  }
+X = data.frame(X/N.chrom)
+```
+```{r}
+#Plot 1: p=0.2
+sim_data <- melt(X)
+ggplot(sim_data, aes(x = rep(c(1:100), N.sim), y = value, colour = variable)) + geom_line() + xlab("Generation") + ylab("Allele Frequency") + ylim(0,1) + labs(colour = "Simulations")
+```
+```{r}
+#Plot 2: p=0.7
+sim_data <- melt(X)
+ggplot(sim_data, aes(x = rep(c(1:100), N.sim), y = value, colour = variable)) + geom_line() + xlab("Generation") + ylab("Allele Frequency") + ylim(0,1) + labs(colour = "Simulations")
+```
+18. Change the number of diploid individuals in the population in your simulation, keeping everything else constant. What pattern do you see when comparing changes in the frequency of the A allele in large populations versus small populations? Why would you expect to see this pattern? (2 points)
+
+Small populations are more likely to experience fixation of one allele and loss of the other than large populations. Large populations experience little overall change in allele frequencies, and changes to allele frequency occur much more slowly. This is because the magnitude of drift is inversely related to population size. It is more likely for alleles to be lost from a small sample size than a larger sample size due to chance alone.
+**Worth 2 Points: answer: 1 pt; why: 1 pt**
+###Code is not required here###
+
+19. What happens to overall genetic variation under a model that includes genetic drift? (1 point)
+
+Genetic drift causes genetic variation to decrease and ultimately, remove genetic variation from the population.
+*Will also accept increase in variation across populations, if the student puts in the context of across-population variation*
+**Worth 1 Point: answer**
+###Code is not required here###
+
