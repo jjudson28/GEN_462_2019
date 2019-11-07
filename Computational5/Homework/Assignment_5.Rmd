@@ -1,0 +1,38 @@
+---
+title: "Computational 5 Assignment"
+output: html_notebook
+---
+
+Answer the questions in this R Notebook file and send the .Rmd file in a direct message to me via Slack by Thursday, November 14th at 5pm. Save the assignment as your full name, last and first, before you send it to me (example file name: "JudsonJessica.Rmd"). Show all of your code you used to answer the questions (I have inserted grey code boxes to indicate where you should have code associated with the question) and make sure you provide the answer where I have indicated below the question. Make sure you either do not change the format of the assignment, or if you do, number your answers. Please make sure you read the questions carefully to make sure you have a complete answer.
+
+1. Calculate Repeatability for the dataset called snails.txt. These are data collected from a population of apple snails in the Everglades. These data are for snail aperture length for 30 snails. Each length measurement (mm) was taken once a day for three consecutive days for each snail. Use these data to estimate the repeatability of aperture length for these apple snails. **Code to calculate repeatability: 3 points, answer: 1 point**
+```{r}
+
+```
+
+2. Interpret your value for repeatability **4 points total**. Include in your answer: 
+a) what repeatability means (1 point), 
+b) how repeatability informs your understanding of the heritability of snail aperture length, (1 point)
+c) what a repeatability value of 1 would mean (1 point) and
+d) Your interpretation of your value (1 point)
+
+3. Calculate Heritability for the dataset called snakes.txt using your method of choice. These data are from a population of ribbon snakes in western South Dakota. These data are for the coloration of stripes along the snake’s back. We were able to digitize the color and analyze each snake for the amount of red versus other primary yellow their stripes contain.  The numbers below are the percentages of the color that are red (e.g., 100 means that the only color in the snake stripe is red, where as 90 would indicate that 90% of the color is red, and the other 10% is yellow).  The stripes range in color from a dark red to an orange-red.  Several of these snakes were brought into the lab for an experiment to study their metabolism. These snakes were bred in captivity and we have measured the stripe colors for their offspring as well. These data will allow you to estimate the heritability of stripe color in these ribbon snakes. **Code to calculate heritability: 3 points, answer: 1 point**
+```{r}
+
+```
+
+4. Is your estimate of heritability appropriate for a wild population of snakes? Why or why not? **2 points**
+
+5. You have enough data to estimate heritabilities using two methods we discussed in class (mid-parent and offspring and full sib).  Calculate heritability using a method different from that used in your answer to question 3. How do these estimates differ and why do they differ? **Code to calculate heritability using different method: 3 points, heritability estimate: 1 point, compare methods and explain: 3 points**
+```{r}
+
+```
+
+
+6. Phenotypic variance can be partitioned into the variance due to genetic effects, the variance due to environmental effects, and the variance due to the interaction between genetic and environmental factors. We can further partition the phenotypic variance due to genetic effects into three categories of genetic variance. What are these categories, and which category is of interest when we calculate the narrow sense heritability? **2 points**
+
+7. A breeder of cows wants her cows to produce 10 liters more milk on average than they currently do to increase her profits. The current average of her stock is 35 liters of milk produced per individual. She selects the cows that produce the most milk on her farm currently to be the parents of her future stock, and these cows produce 50 liters of milk on average. What must the heritability be for milk production in order for her to achieve a stock of cows from her chosen parents that produce 10 more liters on average than the current stock? **2 points**
+```{r}
+
+```
+
