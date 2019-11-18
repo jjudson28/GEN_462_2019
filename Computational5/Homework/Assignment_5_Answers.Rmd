@@ -1,0 +1,130 @@
+---
+title: "Computational 5 Assignment Answers"
+output: html_notebook
+---
+
+1. Calculate Repeatability for the dataset called snails.txt. These are data collected from a population of apple snails in the Everglades. These data are for snail aperture length for 30 snails. Each length measurement (mm) was taken once a day for three consecutive days for each snail. Use these data to estimate the repeatability of aperture length for these apple snails. **Code to calculate repeatability: 3 points, answer: 1 point**
+**Repeatability: 0.9669994**
+```{r}
+snails <- read.table("snails.txt", header = TRUE, sep = "\t")
+#Means
+len1mean <- mean(snails$Length.1)
+len2mean <- mean(snails$Length.2)
+len3mean <- mean(snails$Length.3)
+Xbar=(len1mean+len2mean+len3mean)/3
+Xbar #this is the overall mean
+x <- snails[2:4]
+SStotal <- sum((x-Xbar)^2)
+n <- 3 #number of measures for each individual
+groupmeans <- apply(x, 1 , mean) #the one means to take the means across each row
+SSBetween <- n*sum((groupmeans-Xbar)^2)
+SSWithin <- SStotal-SSBetween
+#Calculate degrees of freedom
+N <- 30 #number of individuals
+n <- 3 #number of measures for each individual
+df_between <- N-1
+df_within <- N*(n-1)
+#MS values are calculated by dividing the sum of squares by the degrees of freedom:
+MS_Between <- SSBetween/df_between
+MS_Within <- SSWithin/df_within
+
+Vw <- MS_Within
+n <- 3 #number of measures for each individual
+Vb <- (MS_Between-Vw)/n
+```
+
+##Calculate R
+```{r}
+Vb/(Vb+Vw)
+((MS_Between-MS_Within)/n)/(Vw+Vb) #alternative method
+```
+
+2. Interpret your value for repeatability **4 points total**. Include in your answer: 
+a) what repeatability means (1 point), 
+b) how repeatability informs your understanding of the heritability of snail aperture length, (1 point) and 
+c) what a repeatability value of 1 would mean (1 point).
+
+###The repeatability of snail aperture length is 0.97. This repeatability is very high, as it is close to one. 
+###a) Repeatability is the amount of phenotypic variance that is not due to the special environmental variance, thus we can conclude that the majority of phenotypic variance is due to other environmental and genetic causes. Thus, the majority of phenotypic variance is due to permanent differences across individuals, and there is very little within individual variation (almost all phenotypic variation is due to differences AMONG individuals).
+###b) Repeatability sets the upper limit for heritability, so the maximum heritability of snail aperture length is 0.9669994. 
+###c) A repeatability of one means that the special environmental variance is zero, and that you will get the same snail aperture length every time it is measured in an individual. There is no within-individual variation.
+
+3. Calculate Heritability for the dataset called snakes.txt using your method of choice. These data are from a population of ribbon snakes in western South Dakota. These data are for the coloration of stripes along the snake’s back. We were able to digitize the color and analyze each snake for the amount of red versus other primary yellow their stripes contain.  The numbers below are the percentages of the color that are red (e.g., 100 means that the only color in the snake stripe is red, where as 90 would indicate that 90% of the color is red, and the other 10% is yellow).  The stripes range in color from a dark red to an orange-red.  Several of these snakes were brought into the lab for an experiment to study their metabolism. These snakes were bred in captivity and we have measured the stripe colors for their offspring as well. These data will allow you to estimate the heritability of stripe color in these ribbon snakes. **Code to calculate heritability: 3 points, answer: 1 point**
+
+**Heritability: 0.2975**
+```{r}
+snakes <- read.table("snakes.txt", header = TRUE, sep = "\t")
+```
+##Two methods to choose from: plot midparent vs offspring or full-sib
+###Midparent Method:
+```{r}
+snakes$Parent.Avg <- apply(snakes[,2:3], 1 , mean) #creates a column with average of the parent phenotypes (columns 2 and 3 of the snake dataframe)
+
+#Let's make a scatterplot of the data.
+library(reshape2)
+plot_snakes <- snakes[,c(4:8)]
+plot_snakes <- melt(plot_snakes, id="Parent.Avg")
+plot(plot_snakes$Parent.Avg, plot_snakes$value, xlab = "Parent Average Color", ylab = "Offspring Color")
+
+lm(plot_snakes$Parent.Avg~plot_snakes$value) #perform a regression to determine the slope of the relationship
+plot(plot_snakes$Parent.Avg, plot_snakes$value, xlab = "Parent Average Color", ylab = "Offspring Color")
+abline(57.5126, 0.2975)
+```
+4. Is your estimate of heritability appropriate for a wild population of snakes? Why or why not? **2 points**
+**No, it is not appropriate for wild snakes. The offspring were born in captivity, so the environmental conditions in captivity and in the wild could influence the color phenotype differently and result in a different value for heritability (environmental and genetic influences on the phenotypic variance would change)**
+
+5. You have enough data to estimate heritabilities using two methods we discussed in class (mid-parent and offspring and full sib).  Calculate heritability using a method different from that used in your answer to question 3. How do these estimates differ and why do they differ? **Code to calculate heritability using different method: 3 points, heritability estimate: 1 point, compare methods and explain: 3 points**
+
+**Heritability: 0.2745**
+
+**This value is very similar to the value for heritability we found above, with the full sib heritability method being slightly smaller than the midparent method. These estimates are different because full-sib methods cannot account for common environmental variance and dominance variance, though in this case, those effects do not appear to be very strong**
+```{r}
+###Degrees of Freedom:
+N <- 20 #number of FAMILIES
+n <- 4 #number of SIBLINGS
+df_between <- N-1
+df_within <- N*(n-1)
+
+#Means: we don't want to include parental data for the full-sib analysis, so we will just use columns 4-7
+col1mean <- mean(snakes$Offspring)
+col2mean <- mean(snakes$Offspring.1)
+col3mean <- mean(snakes$Offspring.2)
+col4mean <- mean(snakes$Offspring.3)
+Xbar=(col1mean+col2mean+col3mean+col4mean)/4
+
+#SStotal
+x <- snakes[4:7]
+SStotal <- sum((x-Xbar)^2)
+
+#SSBetween (between family sum of squares)
+n <- 4 #number of siblings for each family
+groupmeans <- apply(x, 1 , mean)
+SSBetween <- n*sum((groupmeans-Xbar)^2)
+
+#SSWithin (within families sum of squares)
+SSWithin <- SStotal-SSBetween
+#MS values are calculated by dividing the sum of squares by the degrees of freedom:
+MS_Between <- SSBetween/df_between
+MS_Within <- SSWithin/df_within
+
+Vw <- MS_Within
+Vb <- (MS_Between-Vw)/n
+
+t <- ((MS_Between-MS_Within)/n)/(Vw+Vb) 
+2*t
+```
+6. Phenotypic variance can be partitioned into the variance due to genetic effects, the variance due to environmental effects, and the variance due to the interaction between genetic and environmental factors. We can further partition the phenotypic variance due to genetic effects into three categories of genetic variance. What are these categories, and which category is of interest when we calculate the narrow sense heritability? **2 points**
+
+**The three categories of genetic variance are additive genetic variance, dominance variance, and epistatic variance. The additive genetic variance is used to calculate the narrow sense heritability.**
+
+7. A breeder of cows wants her cows to produce 10 liters more milk on average than they currently do to increase her profits. The current average of her stock is 35 liters of milk produced per individual. She selects the cows that produce the most milk on her farm currently to be the parents of her future stock, and these cows produce 50 liters of milk on average. What must the heritability be for milk production in order for her to achieve a stock of cows from her chosen parents that produce 10 more liters on average than the current stock? **2 points**
+
+**heritability = 0.67**
+###Code not necessary
+```{r}
+#R=h2*S
+R <- 10
+S <- 15
+R/S
+```
+
